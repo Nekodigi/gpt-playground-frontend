@@ -19,6 +19,7 @@ import { ArgsContext, ArgsContextProps } from "@/lib/contexts/args";
 import { ArgInput } from "@/components/molecules/argInput";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Header } from "@/components/organisms/Header";
 
 export default function Home() {
   const [prompt, setPrompt] = useState<Chat[]>([{ Role: "user", Content: "" }]);
@@ -95,6 +96,7 @@ export default function Home() {
   return (
     <ArgsContext.Provider value={args_}>
       <PromptContext.Provider value={prompt_}>
+        <Header />
         <Container maxWidth="md" sx={{ mt: 4 }}>
           <Typography variant="h2" mb={4}>
             GPT Playground
