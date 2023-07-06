@@ -10,17 +10,18 @@ import {
   useEffect,
 } from "react";
 
-type AuthContextProps = {
+type IdContextProps = {
   userId: string;
+  browserId: string;
   loading: boolean;
 };
-const AuthContext = createContext({} as AuthContextProps);
+const IdContext = createContext({} as IdContextProps);
 
-export function useAuthContext() {
-  return useContext(AuthContext);
+export function useIdContext() {
+  return useContext(IdContext);
 }
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function IdProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState<boolean>(true);
   const searchParams = useSearchParams();
   const { service_id } = useParams();
@@ -30,6 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const value = {
     userId,
+    browserId,
     loading,
   };
 
@@ -57,13 +59,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUserId(redirectedUser ? redirectedUser : id);
       setBrowserId(id);
       setLoading(false);
+      console.log(browserId_, redirectedUser ? redirectedUser : id);
     };
     f();
   }, []);
 
   return (
-    <AuthContext.Provider value={value}>
+    <IdContext.Provider value={value}>
       {!loading && children}
-    </AuthContext.Provider>
+    </IdContext.Provider>
   );
 }

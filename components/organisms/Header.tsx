@@ -17,7 +17,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { BasicButton } from "../atoms/BasicButton";
-import { useAuthContext } from "@/utils/contexts/IdContext";
+import { useIdContext } from "@/utils/contexts/IdContext";
 import { useEffect, useMemo, useState } from "react";
 import { Logout, PersonAdd, Settings } from "@mui/icons-material";
 import { auth } from "@/lib/firebase/firebase";
@@ -27,12 +27,9 @@ import axios from "axios";
 import { lightTheme } from "@/styles/themes/lightTheme";
 
 export const Header = () => {
-  const { userId } = useAuthContext();
+  const { browserId } = useIdContext();
   //const theme = useTheme();
   const theme = lightTheme;
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [serviceName, setServiceName] = useState("");
 
   const fontT = fontTypes(theme); //WHY THIS WORKS?
 
@@ -70,7 +67,7 @@ export const Header = () => {
               <Typography css={fontT.title}>GPT Playground</Typography>
               <BasicButton
                 type="contained"
-                href={`${process.env.NEXT_PUBLIC_CHARGE_FRONT_URL}/${process.env.NEXT_PUBLIC_SERVICE_ID}`}
+                href={`${process.env.NEXT_PUBLIC_CHARGE_FRONT_URL}/${process.env.NEXT_PUBLIC_SERVICE_ID}?link_target=${browserId}`}
                 label="Dashboard"
                 style={{
                   padding: 12,

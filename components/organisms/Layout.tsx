@@ -5,14 +5,8 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import "@fontsource/noto-sans-jp/500.css";
 import "@fontsource/noto-sans-jp/700.css";
-import { AuthProvider } from "@/utils/contexts/IdContext";
+import { IdProvider } from "@/utils/contexts/IdContext";
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <AuthProvider>
-      {" "}
-      <CssBaseline />
-      {children}
-    </AuthProvider>
-  );
+  return <IdProvider>{children}</IdProvider>;
 };

@@ -10,6 +10,7 @@ import {
   IconButton,
   Stack,
   Button,
+  Alert,
 } from "@mui/material";
 import { Add, Send } from "@mui/icons-material";
 
@@ -17,9 +18,11 @@ import { useEffect, useMemo, useState } from "react";
 import { Args } from "@/lib/types/args";
 import { ArgsContext, ArgsContextProps } from "@/lib/contexts/args";
 import { ArgInput } from "@/components/molecules/argInput";
-import axios from "axios";
+import axios, { isAxiosError } from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Header } from "@/components/organisms/Header";
+import { useIdContext } from "@/utils/contexts/IdContext";
+import Link from "next/link";
 
 export default function Home() {
   const [prompt, setPrompt] = useState<Chat[]>([{ Role: "user", Content: "" }]);
@@ -27,8 +30,11 @@ export default function Home() {
   const prompt_: PromptContextProps = { prompt: prompt, setPrompt: setPrompt };
   const args_: ArgsContextProps = { args: args, setArgs: setArgs };
   const [result, setResult] = useState<string>("");
+  const [error, setError] = useState<string>("");
+  const [errorUrl, setErrorUrl] = useState<string>("");
   const router = useRouter();
   const searchPrams = useSearchParams();
+  const { userId, browserId } = useIdContext();
 
   const onLoad = useEffect(() => {
     const prompt = searchPrams.get("prompt");
@@ -84,13 +90,28 @@ export default function Home() {
   }, [prompt]);
 
   const onSend = async () => {
-    console.log(JSON.stringify({ prompt: finalPrompt }));
-    const res = await axios({
-      url: `${process.env.NEXT_PUBLIC_API_URL}/chatgpt`,
-      method: "post",
-      data: { prompt: finalPrompt },
-    });
-    setResult(res.data);
+    console.log(JSON.stringify({ prompt: finalPrompt, userId: userId }));
+    try {
+      const res = await axios({
+        url: `${process.env.NEXT_PUBLIC_API_URL}/chatgpt`,
+        method: "post",
+        data: { prompt: finalPrompt, userId: userId },
+      });
+      setResult(res.data);
+    } catch (e) {
+      if (isAxiosError(e) && e.response) {
+        console.log(e);
+        let resp = e.response;
+        if (resp.status == 402) {
+          setErrorUrl(
+            `${process.env.NEXT_PUBLIC_CHARGE_FRONT_URL}/${process.env.NEXT_PUBLIC_SERVICE_ID}?link_target=${browserId}`
+          );
+          setError("Payment required. Please go to dashboard to top up.");
+        } else {
+          setError("Something went wrong. Please try again later.");
+        }
+      }
+    }
   };
 
   return (
@@ -121,6 +142,15 @@ export default function Home() {
           <Typography variant="h4" mb={2}>
             {result}
           </Typography>
+          {error ? (
+            errorUrl ? (
+              <Link href={errorUrl}>
+                <Alert severity="error">{error}</Alert>
+              </Link>
+            ) : (
+              <Alert severity="error">{error}</Alert>
+            )
+          ) : undefined}
           <Typography variant="h3" mb={2} mt={30}>
             Prompt
           </Typography>
