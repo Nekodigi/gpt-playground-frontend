@@ -139,7 +139,14 @@ export default function Home() {
           <Typography variant="h4" mb={2} mt={8}>
             Result
           </Typography>
-          <Typography variant="h5" mb={2} sx={{ whiteSpace: "pre-wrap" }}>
+          <Typography
+            onClick={() => {
+              navigator.clipboard.writeText(result);
+            }}
+            variant="h5"
+            mb={2}
+            sx={{ whiteSpace: "pre-wrap" }}
+          >
             {result}
           </Typography>
           {error ? (
