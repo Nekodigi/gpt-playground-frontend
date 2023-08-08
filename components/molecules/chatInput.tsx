@@ -38,6 +38,7 @@ export const ChatInput = ({ index }: ChatInputProps) => {
         </Select>
       </FormControl>
       <TextField
+        multiline
         fullWidth
         value={prompt[index].Content}
         onChange={(e) => {
