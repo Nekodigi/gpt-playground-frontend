@@ -23,6 +23,7 @@ export const ArgInput = ({ k }: ArgInputProps) => {
   return (
     <Stack direction={"row"} spacing={1}>
       <TextField
+        multiline
         label={k}
         fullWidth
         value={args[k]}

@@ -119,10 +119,10 @@ export default function Home() {
       <PromptContext.Provider value={prompt_}>
         <Header />
         <Container maxWidth="md" sx={{ mt: 4 }}>
-          <Typography variant="h2" mb={4}>
+          <Typography variant="h3" mb={4}>
             GPT Playground
           </Typography>
-          <Typography variant="h3" mb={2}>
+          <Typography variant="h4" mb={2}>
             Input
           </Typography>
           <Stack spacing={2} mb={4}>
@@ -136,10 +136,10 @@ export default function Home() {
           >
             Send
           </Button>
-          <Typography variant="h3" mb={2} mt={8}>
+          <Typography variant="h4" mb={2} mt={8}>
             Result
           </Typography>
-          <Typography variant="h4" mb={2}>
+          <Typography variant="h5" mb={2}>
             {result}
           </Typography>
           {error ? (
