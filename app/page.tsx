@@ -226,7 +226,7 @@ export default function Home() {
 
   const listen = () => {
     SpeechRecognition.startListening({
-      language: "lang",
+      language: lang,
     });
   };
 
@@ -236,7 +236,7 @@ export default function Home() {
       args[Object.keys(args)[0]] = transcript;
       setArgs({ ...args });
     }
-  }, [transcript, args]);
+  }, [transcript, args, useVoice]);
 
   useEffect(() => {
     if (!useVoice) return;
@@ -244,7 +244,7 @@ export default function Home() {
       listen();
       if (transcript) onSend();
     }
-  }, [listening, transcript]);
+  }, [listening, transcript, useVoice]);
 
   return (
     <ArgsContext.Provider value={args_}>
