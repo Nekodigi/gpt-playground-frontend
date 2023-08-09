@@ -12,6 +12,9 @@ import {
   Button,
   Alert,
   TextField,
+  Autocomplete,
+  Slider,
+  Switch,
 } from "@mui/material";
 import { Add, Send } from "@mui/icons-material";
 
@@ -24,9 +27,18 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Header } from "@/components/organisms/Header";
 import { useIdContext } from "@/utils/contexts/IdContext";
 import Link from "next/link";
+import "regenerator-runtime";
+import SpeechRecognition, {
+  useSpeechRecognition,
+} from "react-speech-recognition";
 
 export default function Home() {
   const [title, setTitle] = useState<string>("GPT Playground");
+  const [voiceType, setvoiceType] = useState<number>(0);
+  const [lang, setLang] = useState<string>("en-US");
+  const [speed, setSpeed] = useState<number>(1);
+  const [pitch, setPitch] = useState<number>(1);
+  const [useVoice, setUseVoice] = useState<boolean>(true);
   const [prompt, setPrompt] = useState<Chat[]>([{ Role: "user", Content: "" }]);
   const [args, setArgs] = useState<Args>({ text: "sample" });
   const prompt_: PromptContextProps = { prompt: prompt, setPrompt: setPrompt };
@@ -37,6 +49,94 @@ export default function Home() {
   const router = useRouter();
   const searchPrams = useSearchParams();
   const { userId, browserId } = useIdContext();
+
+  const voices = window.speechSynthesis.getVoices();
+  const {
+    transcript,
+    listening,
+    resetTranscript,
+    browserSupportsSpeechRecognition,
+  } = useSpeechRecognition();
+
+  const langList = [
+    "af",
+    "eu",
+    "bg",
+    "ca",
+    "ar-EG",
+    "ar-JO",
+    "ar-KW",
+    "ar-LB",
+    "ar-QA",
+    "ar-AE",
+    "ar-MA",
+    "ar-IQ",
+    "ar-DZ",
+    "ar-BH",
+    "ar-LY",
+    "ar-OM",
+    "ar-SA",
+    "ar-TN",
+    "ar-YE",
+    "cs",
+    "nl-NL",
+    "en-AU",
+    "en-CA",
+    "en-IN",
+    "en-NZ",
+    "en-ZA",
+    "en-GB",
+    "en-US",
+    "fi",
+    "fr-FR",
+    "gl",
+    "de-DE",
+    "el-GR",
+    "he",
+    "hu",
+    "is",
+    "it-IT",
+    "id",
+    "ja",
+    "ko",
+    "la",
+    "zh-CN",
+    "zh-TW",
+    "zh-HK",
+    "ms-MY",
+    "no-NO",
+    "pl",
+    "xx-piglatin",
+    "pt-PT",
+    "pt-br",
+    "ro-RO",
+    "ru",
+    "sr-SP",
+    "sk",
+    "es-AR",
+    "es-BO",
+    "es-CL",
+    "es-CO",
+    "es-CR",
+    "es-DO",
+    "es-EC",
+    "es-SV",
+    "es-GT",
+    "es-HN",
+    "es-MX",
+    "es-NI",
+    "es-PA",
+    "es-PY",
+    "es-PE",
+    "es-PR",
+    "es-ES",
+    "es-US",
+    "es-UY",
+    "es-VE",
+    "sv-SE",
+    "tr",
+    "zu",
+  ];
 
   const onLoad = useEffect(() => {
     const prompt = searchPrams.get("prompt");
@@ -100,6 +200,14 @@ export default function Home() {
         data: { prompt: finalPrompt, userId: userId },
       });
       setResult(res.data);
+      if (!useVoice) return;
+      const uttr = new SpeechSynthesisUtterance(res.data);
+      console.log(voices);
+      uttr.voice = voices[voiceType];
+      uttr.rate = speed;
+      uttr.pitch = pitch;
+      speechSynthesis.cancel();
+      speechSynthesis.speak(uttr);
     } catch (e) {
       if (isAxiosError(e) && e.response) {
         console.log(e);
@@ -116,11 +224,33 @@ export default function Home() {
     }
   };
 
+  const listen = () => {
+    SpeechRecognition.startListening({
+      language: "lang",
+    });
+  };
+
+  useEffect(() => {
+    if (!useVoice) return;
+    if (transcript) {
+      args[Object.keys(args)[0]] = transcript;
+      setArgs({ ...args });
+    }
+  }, [transcript, args]);
+
+  useEffect(() => {
+    if (!useVoice) return;
+    if (!listening) {
+      listen();
+      if (transcript) onSend();
+    }
+  }, [listening, transcript]);
+
   return (
     <ArgsContext.Provider value={args_}>
       <PromptContext.Provider value={prompt_}>
         <Header />
-        <Container maxWidth="md" sx={{ mt: 4 }}>
+        <Container maxWidth="md" sx={{ my: 4 }}>
           <Typography variant="h3" mb={4}>
             {title}
           </Typography>
@@ -178,10 +308,64 @@ export default function Home() {
             </Box>
           </Stack>
           <Typography mb={2}>{JSON.stringify(finalPrompt)}</Typography>
+
+          <Typography variant="h3" mb={2}>
+            Settings
+          </Typography>
           <TextField
             label="title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            sx={{ mb: 1 }}
+          />
+          <Typography>Use voice input and output</Typography>
+          <Switch
+            checked={useVoice}
+            onChange={(e) => setUseVoice(e.target.checked)}
+          />
+          <Autocomplete
+            value={voices[voiceType].name}
+            onChange={(e, v) => {
+              v ? setvoiceType(voices.map((v) => v.name).indexOf(v)) : null;
+            }}
+            options={voices.map((v) => v.name)}
+            renderInput={(params) => (
+              <TextField {...params} label="Output Voice" />
+            )}
+            sx={{ mb: 1 }}
+          />
+          <Typography id="Speed">Speed</Typography>
+          <Slider
+            aria-labelledby="Speed"
+            value={speed}
+            onChange={(e, v) => setSpeed(v as number)}
+            min={0.1}
+            step={0.1}
+            valueLabelDisplay="auto"
+            max={2}
+          />
+          <Typography id="Pitch">Pitch</Typography>
+          <Slider
+            aria-labelledby="Pitch"
+            value={pitch}
+            onChange={(e, v) => setPitch(v as number)}
+            min={0}
+            step={0.1}
+            max={2}
+            valueLabelDisplay="auto"
+            sx={{ mb: 1 }}
+          />
+
+          <Autocomplete
+            value={lang}
+            onChange={(e, v) => {
+              setLang(v ? v : lang);
+            }}
+            options={langList}
+            renderInput={(params) => (
+              <TextField {...params} label="Input Voice" />
+            )}
+            sx={{ mb: 1 }}
           />
         </Container>
       </PromptContext.Provider>
