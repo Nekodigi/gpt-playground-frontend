@@ -11,6 +11,7 @@ import {
   Stack,
   Button,
   Alert,
+  TextField,
 } from "@mui/material";
 import { Add, Send } from "@mui/icons-material";
 
@@ -25,6 +26,7 @@ import { useIdContext } from "@/utils/contexts/IdContext";
 import Link from "next/link";
 
 export default function Home() {
+  const [title, setTitle] = useState<string>("GPT Playground");
   const [prompt, setPrompt] = useState<Chat[]>([{ Role: "user", Content: "" }]);
   const [args, setArgs] = useState<Args>({ text: "sample" });
   const prompt_: PromptContextProps = { prompt: prompt, setPrompt: setPrompt };
@@ -120,7 +122,7 @@ export default function Home() {
         <Header />
         <Container maxWidth="md" sx={{ mt: 4 }}>
           <Typography variant="h3" mb={4}>
-            GPT Playground
+            {title}
           </Typography>
           <Typography variant="h4" mb={2}>
             Input
@@ -176,6 +178,11 @@ export default function Home() {
             </Box>
           </Stack>
           <Typography mb={2}>{JSON.stringify(finalPrompt)}</Typography>
+          <TextField
+            label="title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
         </Container>
       </PromptContext.Provider>
     </ArgsContext.Provider>
