@@ -6,6 +6,9 @@ let black = "#212121";
 let gray = "#757575";
 
 const lightTheme = createTheme({
+  typography: {
+    fontFamily: ["Roboto", "Noto Sans JP"].join(","),
+  },
   palette: {
     mode: "light",
     com: themeCommon,
